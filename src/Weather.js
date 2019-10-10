@@ -1,28 +1,22 @@
-import React from 'react'
+import React from 'react';
 
 class Weather extends React.Component {
-  render() {
-
-    // This method returns undefined or a JSX component
+  constructor(props) {
+    super(props);
+    console.log(this.props)
     if (this.props.weather === null) {
-      // If there is no data return undefined
-      return <div className="error-message">No Data</div>
+      this.state = null
     } else if (this.props.weather.cod === '404' || this.props.weather.cod === '400') {
-      return <div className="error-message">{this.props.weather.message}</div>
+      this.state = Error("Something went wrong!")
+    } else {
+      const { main, description, icon } = this.props.weather.weather[0]
+      const { temp, humidity, temp_min, temp_max } = this.props.weather.main
+      this.state = { main, description, icon, temp, humidity, temp_min, temp_max }
     }
+  }
 
-
-
-    console.log(this.props.weather)
-
-    /* 
-    This next step needs another level of error checking. It's 
-    possible to get a JSON response for an invalid zip in which 
-    case the step below fails. 
-    */
-    // Take the weather data apart to more easily populate the component
-    const { main, description, icon } = this.props.weather.weather[0]
-    const { temp, humidity, temp_min, temp_max } = this.props.weather.main
+  renderSuccess() {
+    const { main, description, icon, temp, humidity, temp_min, temp_max } = this.state
 
     return (
       <div className="result">
@@ -34,6 +28,17 @@ class Weather extends React.Component {
         <div>Today's Low: {temp_min} High:{temp_max}</div>
       </div>
     )
+  }
+
+  render() {
+    if (this.state === null) {
+      console.log("Weather is null", this.state)
+      return <div className="error-message">No Data</div>
+    } else if (this.state === Error) {
+      return <div className="error-message">{this.props.weather.message}</div>
+    } else {
+      return this.renderSuccess();
+    }
   }
 }
 
